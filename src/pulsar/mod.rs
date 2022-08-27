@@ -15,10 +15,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod tenant;
+
 use actix_web::{HttpResponse, web};
 
 pub fn pulsar_router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/hello").route(web::get().to(hello)))
+        .service(web::resource("/tenants/create").route(web::post().to(tenant::create_tenant)))
+        .service(web::resource("/tenants/delete").route(web::post().to(tenant::delete_tenant)))
     ;
 }
 
