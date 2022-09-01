@@ -19,6 +19,7 @@ mod cassandra;
 mod minio;
 mod mysql;
 mod pulsar;
+mod redis;
 mod zookeeper;
 
 use std::env;
@@ -73,5 +74,6 @@ fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/v1/minio").configure(minio::minio_router));
     cfg.service(web::scope("/v1/mysql").configure(mysql::mysql_router));
     cfg.service(web::scope("/v1/pulsar").configure(pulsar::pulsar_router));
+    cfg.service(web::scope("/v1/redis").configure(redis::redis_router));
     cfg.service(web::scope("/v1/zookeeper").configure(zookeeper::zookeeper_router));
 }
