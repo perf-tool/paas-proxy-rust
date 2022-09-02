@@ -15,18 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-mod cluster_enable;
-mod key;
+use serde::Deserialize;
 
-use actix_web::{HttpResponse, web};
-
-pub fn redis_router(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/hello").route(web::get().to(hello)))
-        .service(web::resource("/keys/set").route(web::post().to(key::set_key)))
-        .service(web::resource("/keys/delete").route(web::post().to(key::delete_key)))
-    ;
-}
-
-async fn hello() -> HttpResponse {
-    HttpResponse::Ok().body("Hello, Redis")
+#[derive(Debug, Deserialize)]
+pub struct Params {
+    pub cluster: bool,
 }
