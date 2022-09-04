@@ -15,12 +15,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+mod node;
+
 use actix_web::{HttpResponse, web};
 
 pub fn zookeeper_router(cfg: &mut web::ServiceConfig) {
     cfg.service(web::resource("/hello").route(web::get().to(hello)))
+        .service(web::resource("/nodes/create").route(web::post().to(node::create_node)))
+        .service(web::resource("/nodes/delete").route(web::post().to(node::delete_node)))
     ;
 }
+
 
 async fn hello() -> HttpResponse {
     HttpResponse::Ok().body("Hello, ZooKeeper")
