@@ -44,10 +44,11 @@ async fn create_node_internal(req: CreateNodeReq) -> Result<(), Box<dyn std::err
                                 Duration::from_secs(5))
         .await
         .unwrap();
-    zk.create(req.node_path.as_str(), Some(req.data.as_bytes()), ACL::world_acl(),
-              CreateMode::Persistent)
+    let path = zk.create(req.node_path.as_str(), Some(req.data.as_bytes()),
+                         ACL::world_acl(), CreateMode::Persistent)
         .await
         .unwrap();
+    log::info!("create zookeeper path {:?}", path);
     Ok(())
 }
 
