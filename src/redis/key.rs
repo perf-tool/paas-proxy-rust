@@ -16,7 +16,7 @@
 // under the License.
 
 use actix_web::{HttpResponse, web};
-use redis::Commands;
+use redis::{Commands, IntoConnectionInfo};
 use serde::Deserialize;
 use crate::redis::cluster_enable;
 
@@ -40,7 +40,8 @@ pub async fn set_key(req: web::Json<SetKeyReq>, params: web::Query<cluster_enabl
 
 async fn set_key_internal(req: SetKeyReq, cluster: bool) -> Result<(), Box<dyn std::error::Error>> {
     if cluster {
-        let redis = redis::cluster::ClusterClient::open(req.url.split(",").map(|s| s.to_string()).collect())?;
+        let redis = redis::cluster::ClusterClient::open(req.url.split(",")
+            .map(|s| s.to_string().into_connection_info().unwrap()).collect())?;
         let mut con = redis.get_connection()?;
         con.set(req.key, req.value)?;
     } else {
