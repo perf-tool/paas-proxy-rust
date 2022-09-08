@@ -24,7 +24,6 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
-buruma = "0.1.0"
 chrono = "0.4"
 fern = "0.6.1"
 log = "0.4"
