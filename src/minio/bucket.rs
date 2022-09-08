@@ -45,7 +45,7 @@ async fn create_bucket_internal(req: CreateBucketReq) -> Result<(), Box<dyn std:
         region: "us-east-1".to_owned(),
         endpoint: format!("http://{}:{}", req.host, req.port),
     };
-    let credentials = Credentials::new(Some(req.access_key.as_str()), Some(req.secret_key.as_str()), None, None, None).unwrap();
+    let credentials = Credentials::new(Some(req.access_key.as_str()), Some(req.secret_key.as_str()), None, None, None)?;
     let config = BucketConfiguration::default();
     let create_bucket_response = Bucket::create_with_path_style(req.bucket_name.as_str(), region, credentials, config).await?;
     log::info!("create bucket success, resp is {:?}", create_bucket_response.response_text);
@@ -78,7 +78,7 @@ async fn delete_bucket_internal(req: DeleteBucketReq) -> Result<(), Box<dyn std:
         region: "us-east-1".to_owned(),
         endpoint: format!("http://{}:{}", req.host, req.port),
     };
-    let credentials = Credentials::new(Some(req.access_key.as_str()), Some(req.secret_key.as_str()), None, None, None).unwrap();
+    let credentials = Credentials::new(Some(req.access_key.as_str()), Some(req.secret_key.as_str()), None, None, None)?;
     Bucket::new(req.bucket_name.as_str(), region, credentials)?.with_path_style().delete().await?;
     Ok(())
 }

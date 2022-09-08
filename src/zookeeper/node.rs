@@ -17,8 +17,8 @@
 
 use std::time::Duration;
 use actix_web::{HttpResponse, web};
-use buruma::{ACL, CreateMode, ZooKeeper};
 use serde::Deserialize;
+use zookeeper::{Acl, CreateMode, WatchedEvent, Watcher, ZooKeeper};
 
 #[derive(Deserialize)]
 pub struct CreateNodeReq {
@@ -40,15 +40,11 @@ pub async fn create_node(req: web::Json<CreateNodeReq>) -> HttpResponse {
 }
 
 async fn create_node_internal(req: CreateNodeReq) -> Result<(), Box<dyn std::error::Error>> {
-    let mut zk = ZooKeeper::new(format!("{}:{}", req.host, req.port).as_str(),
-                                Duration::from_secs(5))
-        .await
-        .unwrap();
-    let path = zk.create(req.node_path.as_str(), Some(req.data.as_bytes()),
-                         ACL::world_acl(), CreateMode::Persistent)
-        .await
-        .unwrap();
-    log::info!("create zookeeper path {:?}", path);
+    let zk = ZooKeeper::connect(format!("{}:{}", req.host, req.port).as_str(),
+                                    Duration::from_secs(5), LoggingWatcher)?;
+    zk.add_listener(|zk_state| log::info!("New ZkState is {:?}", zk_state));
+    zk.create(req.node_path.as_str(), req.data.into_bytes(), Acl::open_unsafe().clone(),
+              CreateMode::Persistent)?;
     Ok(())
 }
 
@@ -71,10 +67,17 @@ pub async fn delete_node(req: web::Json<DeleteNodeReq>) -> HttpResponse {
 }
 
 async fn delete_node_internal(req: DeleteNodeReq) -> Result<(), Box<dyn std::error::Error>> {
-    let mut zk = ZooKeeper::new(format!("{}:{}", req.host, req.port).as_str(),
-                                Duration::from_secs(5))
-        .await
-        .unwrap();
-    zk.delete(req.node_path.as_str());
+    let zk = ZooKeeper::connect(format!("{}:{}", req.host, req.port).as_str(),
+                                    Duration::from_secs(5), LoggingWatcher)?;
+    zk.add_listener(|zk_state| log::info!("New ZkState is {:?}", zk_state));
+    zk.delete(req.node_path.as_str(), None)?;
     Ok(())
+}
+
+struct LoggingWatcher;
+
+impl Watcher for LoggingWatcher {
+    fn handle(&self, e: WatchedEvent) {
+        log::info!("{:?}", e)
+    }
 }
