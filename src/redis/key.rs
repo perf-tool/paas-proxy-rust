@@ -45,7 +45,7 @@ async fn set_key_internal(req: SetKeyReq, cluster: bool) -> Result<(), Box<dyn s
         let mut con = redis.get_connection()?;
         con.set(req.key, req.value)?;
     } else {
-        let redis = redis::Client::open(req.url)?;
+        let redis = redis::Client::open(req.url.into_connection_info().unwrap())?;
         let mut con = redis.get_connection()?;
         con.set(req.key, req.value)?;
     }
@@ -71,11 +71,12 @@ pub async fn delete_key(req: web::Json<DeleteKeyReq>, params: web::Query<cluster
 
 async fn delete_key_internal(req: DeleteKeyReq, cluster: bool) -> Result<(), Box<dyn std::error::Error>> {
     if cluster {
-        let redis = redis::cluster::ClusterClient::open(req.url.split(",").map(|s| s.to_string()).collect())?;
+        let redis = redis::cluster::ClusterClient::open(req.url.split(",")
+            .map(|s| s.to_string().into_connection_info().unwrap()).collect())?;
         let mut con = redis.get_connection()?;
         con.del(req.key)?;
     } else {
-        let redis = redis::Client::open(req.url)?;
+        let redis = redis::Client::open(req.url.into_connection_info().unwrap())?;
         let mut con = redis.get_connection()?;
         con.del(req.key)?;
     }
