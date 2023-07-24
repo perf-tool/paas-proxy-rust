@@ -25,7 +25,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4.3.1"
 chrono = "0.4"
-fern = "0.6.1"
+fern = "0.6.2"
 log = "0.4"
 mysql = "23.0.1"
 redis = { version = "0.22.3", features = ["cluster"]}
